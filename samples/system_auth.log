@@ -1,0 +1,23 @@
+Jul  5 08:12:01 server-a systemd[1]: Started System Logging Service.
+Jul  5 08:12:02 server-a systemd[1]: Starting OpenSSH Daemon...
+Jul  5 08:12:02 server-a sshd[1024]: Server listening on 0.0.0.0 port 22.
+Jul  5 08:15:20 server-a sshd[1035]: Accepted password for root from 192.168.1.50 port 50123 ssh2
+Jul  5 08:15:35 server-a sshd[1035]: pam_unix(sshd:session): session opened for user root by (uid=0)
+Jul  5 08:18:10 server-a sudo[1042]:    root : TTY=pts/0 ; PWD=/root ; USER=root ; COMMAND=/usr/bin/apt-get update
+Jul  5 08:20:44 server-a sshd[1050]: Failed password for root from 198.51.100.12 port 38450 ssh2
+Jul  5 08:20:46 server-a sshd[1050]: Failed password for root from 198.51.100.12 port 38452 ssh2
+Jul  5 08:20:48 server-a sshd[1050]: Failed password for root from 198.51.100.12 port 38456 ssh2
+Jul  5 08:20:50 server-a sshd[1050]: Failed password for invalid user admin from 198.51.100.12 port 38460 ssh2
+Jul  5 08:20:53 server-a sshd[1050]: Invalid user support from 198.51.100.12 port 38464 ssh2
+Jul  5 08:20:55 server-a sshd[1050]: Failed password for invalid user support from 198.51.100.12 port 38464 ssh2
+Jul  5 08:22:15 server-a sshd[1080]: Accepted password for developer from 192.168.1.55 port 51221 ssh2
+Jul  5 08:22:16 server-a sshd[1080]: pam_unix(sshd:session): session opened for user developer by (uid=1000)
+Jul  5 08:23:05 server-a sudo[1088]: developer : auth failure ; logname=developer uid=1000 euid=0 tty=/dev/pts/1 ruser=developer rhost= user=developer
+Jul  5 08:23:22 server-a sudo[1088]: developer : user NOT in sudoers ; TTY=pts/1 ; PWD=/home/developer ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Jul  5 08:25:01 server-a CRON[1105]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jul  5 08:25:02 server-a CRON[1105]: pam_unix(cron:session): session closed for user root
+Jul  5 08:28:44 server-a kernel[12345]: apache2[2045]: segfault at 0000000000000008 ip 00007f35a4d048d0 sp 00007ffe34da8340 error 4 in libc-2.31.so
+Jul  5 08:29:10 server-a systemd[1]: apache2.service: Main process exited, code=dumped, status=11/SEGV
+Jul  5 08:29:11 server-a systemd[1]: apache2.service: Failed with result 'core-dump'.
+Jul  5 08:31:02 server-a sshd[1120]: Received disconnect from 192.168.1.80 port 49021:11: user request
+Jul  5 08:31:02 server-a sshd[1120]: pam_unix(sshd:session): session closed for user developer

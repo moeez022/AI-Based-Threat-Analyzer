@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50 text-slate-900">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Based Analyzer for Cybersecurity Threat Detection | ML-Based Network Intrusion Detection System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Enable class-based dark mode
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            950: '#082f49',
+                        },
+                        dark: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        // Apply theme immediately on load to prevent flash of style mismatch
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Unregister stale service workers from other apps running on local dev ports
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log("Stale Service Worker unregistered successfully.");
+                }
+            });
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        html.dark ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+
+        html ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        html.dark ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+        html ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        html.dark ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        html ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Glass Panel Styling */
+        html.dark .glass-panel {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        html .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .gradient-border:hover {
+            border-color: transparent;
+            background-image: linear-gradient(#0f172a, #0f172a), linear-gradient(to right, #0ea5e9, #a855f7);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+    </style>
+</head>
+
+<body
+    class="h-full flex overflow-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
+
+    <!-- Sidebar Backdrop for Mobile -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 hidden md:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="w-80 bg-slate-100 border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between z-40 transition-all duration-300 fixed inset-y-0 left-0 transform -translate-x-full md:static md:translate-x-0 md:flex shadow-2xl md:shadow-none">
+        <div class="p-6 space-y-8">
+            <!-- Brand Logo -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-tr from-sky-500 to-purple-500 p-2.5 rounded-xl shadow-lg shadow-sky-500/20">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">AI-Based Analyzer for Cybersecurity Threat Detection</h1>
+                        <p class="text-xs text-sky-600 dark:text-sky-400 font-semibold tracking-wider uppercase">AI Network
+                            IDS</p>
+                    </div>
+                </div>
+                <!-- Close sidebar button (mobile only) -->
+                <button id="sidebarClose" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 md:hidden transition duration-200" title="Close Panel">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Model Status Indicators -->
+            <div class="glass-panel rounded-xl p-4 space-y-4">
+                <div>
+                    <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        Network Engine</h3>
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex h-3 w-3">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-900 dark:text-white">Decision Tree Engine</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Ready</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-800 pt-3">
+                    <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        System Log Engine</h3>
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex h-3 w-3">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-900 dark:text-white">Rule Heuristics</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Ready</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration / Sliders -->
+            <div class="space-y-5">
+                <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Detection
+                    Settings</h3>
+
+                <!-- Medium Severity Slider -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1.5 font-medium">
+                        <span class="text-amber-600 dark:text-amber-400">Medium Severity Threshold</span>
+                        <span id="medVal" class="text-slate-600 dark:text-slate-300">40%</span>
+                    </div>
+                    <input type="range" id="thresholdMed" min="10" max="60" value="40"
+                        class="w-full h-1 bg-slate-300 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                </div>
+
+                <!-- High Severity Slider -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1.5 font-medium">
+                        <span class="text-rose-600 dark:text-rose-500">High Severity Threshold</span>
+                        <span id="highVal" class="text-slate-600 dark:text-slate-300">70%</span>
+                    </div>
+                    <input type="range" id="thresholdHigh" min="50" max="85" value="70"
+                        class="w-full h-1 bg-slate-300 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500">
+                </div>
+
+                <!-- Critical Severity Slider -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1.5 font-medium">
+                        <span class="text-purple-600 dark:text-purple-500">Critical Severity Threshold</span>
+                        <span id="critVal" class="text-slate-600 dark:text-slate-300">85%</span>
+                    </div>
+                    <input type="range" id="thresholdCrit" min="75" max="95" value="85"
+                        class="w-full h-1 bg-slate-300 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Footer (Theme Switch) -->
+        <div class="p-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Appearance</span>
+            <button id="themeToggle"
+                class="p-2 rounded-lg bg-slate-200/50 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-350 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition duration-200 shadow-sm"
+                title="Toggle Light/Dark Mode">
+                <!-- Sun Icon (visible in dark mode) -->
+                <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.364l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z">
+                    </path>
+                </svg>
+                <!-- Moon Icon (visible in light mode) -->
+                <svg id="moonIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main
+        class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50 dark:bg-slate-950 relative transition-colors duration-200">
+
+        <!-- Header -->
+        <header
+            class="h-16 border-b border-slate-200 bg-white/85 dark:border-slate-900 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-10 transition-colors duration-200">
+            <div class="flex items-center md:hidden space-x-3">
+                <!-- Mobile sidebar toggle -->
+                <button id="sidebarToggle" class="p-2 -ml-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition duration-200" title="Open Settings">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <!-- Mobile brand logo -->
+                <div class="bg-gradient-to-tr from-sky-500 to-purple-500 p-1.5 rounded-lg">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                        </path>
+                    </svg>
+                </div>
+                <h1 class="text-md font-bold text-slate-900 dark:text-white">AI-Based Analyzer for Cybersecurity Threat Detection</h1>
+            </div>
+
+            <div class="hidden md:block"></div>
+
+            <div class="flex items-center space-x-4">
+            </div>
+        </header>
+
+        <!-- Main Dashboard Container -->
+        <div class="max-w-7xl w-full mx-auto p-8 space-y-8">
+
+            <!-- Upload section -->
+            <section
+                class="glass-panel rounded-2xl p-6 border shadow-sm dark:shadow-xl relative overflow-hidden transition-colors duration-200">
+                <!-- Background decorative shapes -->
+                <div
+                    class="absolute -right-16 -top-16 w-48 h-48 bg-sky-500/10 rounded-full blur-3xl pointer-events-none">
+                </div>
+                <div
+                    class="absolute -left-16 -bottom-16 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none">
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Upload Network Traffic or System Logs
+                </h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Select or drag & drop logs to analyze.
+                    Supports standard <b>PCAP packet captures</b>, network <b>CSV files</b>, and Unix <b>Syslog/Auth
+                        logs</b>.</p>
+
+                <!-- Upload Dropzone -->
+                <div id="dropzone"
+                    class="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center cursor-pointer transition-all duration-300 hover:border-sky-500 bg-slate-100/40 dark:bg-slate-900/20 group relative">
+                    <input type="file" id="fileInput" accept=".pcap,.csv,.log,.txt,text/plain" class="hidden">
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div
+                            class="p-4 bg-slate-250/50 dark:bg-slate-900/80 rounded-full border border-slate-300 dark:border-slate-800 text-sky-500 dark:text-sky-400 group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-900 dark:text-white">Drag & drop your files here
+                            </p>
+                            <p class="text-xs text-slate-500 mt-1 dark:text-slate-450">or click to browse local files
+                                (max 32MB)</p>
+                        </div>
+                        <div
+                            class="flex space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 mt-2">
+                            <span
+                                class="bg-slate-200/60 border border-slate-350 dark:bg-slate-950/60 dark:border-slate-800 rounded px-2.5 py-1">.PCAP</span>
+                            <span
+                                class="bg-slate-200/60 border border-slate-350 dark:bg-slate-950/60 dark:border-slate-800 rounded px-2.5 py-1">.CSV</span>
+                            <span
+                                class="bg-slate-200/60 border border-slate-350 dark:bg-slate-950/60 dark:border-slate-800 rounded px-2.5 py-1">.LOG</span>
+                            <span
+                                class="bg-slate-200/60 border border-slate-350 dark:bg-slate-950/60 dark:border-slate-800 rounded px-2.5 py-1">.TXT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processing Screen -->
+                <div id="uploadProgressContainer"
+                    class="hidden mt-6 p-6 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-100/40 dark:bg-slate-900/40 relative">
+                    <div class="flex items-center justify-between mb-2">
+                        <span id="uploadStatusText"
+                            class="text-sm font-semibold text-sky-500 dark:text-sky-400 flex items-center space-x-2">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-sky-500 dark:text-sky-400" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Uploading file...
+                        </span>
+                        <span id="uploadPercentage"
+                            class="text-xs font-bold text-slate-500 dark:text-slate-400">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-950 rounded-full h-2">
+                        <div id="uploadProgressBar"
+                            class="bg-gradient-to-r from-sky-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                            style="width: 0%"></div>
+                    </div>
+                    <p id="extractionStageText" class="text-xs text-slate-600 dark:text-slate-500 mt-2 font-medium">
+                        Stage 1: Transporting file payloads to Flask dev server</p>
+                </div>
+            </section>
+
+            <!-- Dashboard Tabs Navigation -->
+            <div class="flex border-b border-slate-250 dark:border-slate-800 space-x-1.5 mb-6">
+                <button id="btnTabNetwork"
+                    class="px-5 py-3 text-sm font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-500 transition-all duration-200 flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>Network Traffic</span>
+                </button>
+                <button id="btnTabSystem"
+                    class="px-5 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-all duration-200 flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                        </path>
+                    </svg>
+                    <span>System Logs</span>
+                </button>
+            </div>
+
+            <!-- Network Results Dashboard -->
+            <div id="networkDashboard" class="space-y-8">
+                <!-- Network Placeholder -->
+                <div id="networkPlaceholder"
+                    class="glass-panel rounded-2xl p-12 text-center border shadow-sm dark:shadow-xl relative overflow-hidden transition-colors duration-200">
+                    <div
+                        class="absolute -right-16 -top-16 w-36 h-36 bg-brand-500/10 rounded-full blur-2xl pointer-events-none">
+                    </div>
+                    <div class="inline-flex p-4 bg-brand-100 dark:bg-brand-950/40 text-brand-500 rounded-full mb-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-md font-bold mb-1">No Network Traffic Loaded</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">Please drag & drop or upload
+                        a packet capture (.pcap) or network flow (.csv) file to view network threat diagnostics.</p>
+                </div>
+
+                <!-- Network Content -->
+                <div id="networkContent" class="space-y-8 hidden">
+                    <!-- Overview Stats Panel -->
+                    <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <!-- Status Card -->
+                        <div
+                            class="glass-panel rounded-2xl p-5 border relative flex items-center justify-between overflow-hidden shadow-sm dark:shadow-lg transition-colors duration-200">
+                            <div class="space-y-1">
+                                <h4
+                                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Overall Status</h4>
+                                <p id="overallSeverityText" class="text-2xl font-black text-slate-900 dark:text-white">
+                                    Low Threat</p>
+                            </div>
+                            <div id="statusBadgeBg" class="p-3.5 rounded-xl text-white shadow-lg">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Total Flows Card -->
+                        <div
+                            class="glass-panel rounded-2xl p-5 border flex items-center justify-between shadow-sm dark:shadow-lg transition-colors duration-200">
+                            <div class="space-y-1">
+                                <h4
+                                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Total Flows</h4>
+                                <p id="statTotalFlows" class="text-3xl font-black text-slate-900 dark:text-white">0</p>
+                            </div>
+                            <div
+                                class="p-3.5 bg-slate-200/50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-xl text-sky-500 dark:text-sky-400 shadow-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Anomalies Found Card -->
+                        <div
+                            class="glass-panel rounded-2xl p-5 border flex items-center justify-between shadow-sm dark:shadow-lg transition-colors duration-200">
+                            <div class="space-y-1">
+                                <h4
+                                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Anomalies Found</h4>
+                                <p id="statAnomalies" class="text-3xl font-black text-rose-500">0</p>
+                            </div>
+                            <div
+                                class="p-3.5 bg-slate-200/50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-xl text-rose-500 shadow-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Average Risk Score Card -->
+                        <div
+                            class="glass-panel rounded-2xl p-5 border flex items-center justify-between shadow-sm dark:shadow-lg transition-colors duration-200">
+                            <div class="space-y-1">
+                                <h4
+                                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Risk Score (Avg)</h4>
+                                <p id="statAvgRisk" class="text-3xl font-black text-amber-500">0%</p>
+                            </div>
+                            <div
+                                class="p-3.5 bg-slate-200/50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-xl text-amber-500 shadow-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Visualization Panel (Charts) -->
+                    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Doughnut Chart -->
+                        <div
+                            class="glass-panel rounded-2xl p-6 border flex flex-col items-center justify-between shadow-sm dark:shadow-lg transition-colors duration-200 col-span-1">
+                            <div class="w-full text-left mb-4">
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Intrusion Classifications
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Distribution of flow categories
+                                    predicted by the Decision Tree</p>
+                            </div>
+                            <div class="w-48 h-48 relative flex items-center justify-center">
+                                <canvas id="categoryChart" class="max-w-full max-h-full"></canvas>
+                            </div>
+                            <div
+                                class="w-full grid grid-cols-2 gap-2 mt-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block"></span>
+                                    <span>Benign</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-sky-500 rounded-full inline-block"></span>
+                                    <span>DoS</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-indigo-500 rounded-full inline-block"></span>
+                                    <span>DDoS</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-amber-500 rounded-full inline-block"></span>
+                                    <span>PortScan</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-purple-500 rounded-full inline-block"></span>
+                                    <span>Botnet</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-rose-500 rounded-full inline-block"></span> <span>Web
+                                        Attack</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Bar Chart -->
+                        <div
+                            class="glass-panel rounded-2xl p-6 border shadow-sm dark:shadow-lg col-span-2 flex flex-col justify-between transition-colors duration-200">
+                            <div class="mb-4">
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Threat Levels & Protocol
+                                    Mapping</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Breakdown of network protocols
+                                    (TCP, UDP, Other) across risk levels</p>
+                            </div>
+                            <div class="h-56 relative">
+                                <canvas id="protocolChart"></canvas>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Flow Details Table -->
+                    <section
+                        class="glass-panel rounded-2xl border shadow-sm dark:shadow-xl overflow-hidden transition-colors duration-200">
+                        <div
+                            class="p-6 border-b border-slate-200 dark:border-slate-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Network Flow Logs</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Real-time classification logs
+                                    matching the dynamic severity configuration</p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <!-- Search -->
+                                <div class="relative">
+                                    <input type="text" id="tableSearch" placeholder="Search by IP or type..."
+                                        class="w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-1.5 text-xs text-slate-905 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 transition duration-200">
+                                </div>
+                                <!-- CSV Export -->
+                                <button id="exportCsvBtn"
+                                    class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-semibold text-xs py-1.5 px-4 rounded-lg flex items-center space-x-2 transition duration-200 shadow-lg shadow-sky-500/10">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    <span>Export Report</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table element -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-left text-xs text-slate-700 dark:text-slate-300">
+                                <thead
+                                    class="bg-slate-100 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-900 text-slate-605 dark:text-slate-400 font-bold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-4">Source IP</th>
+                                        <th class="px-6 py-4">Dest IP</th>
+                                        <th class="px-6 py-4">Protocol</th>
+                                        <th class="px-6 py-4">Duration (μs)</th>
+                                        <th class="px-6 py-4">Packets (Fwd/Bwd)</th>
+                                        <th class="px-6 py-4">Classification</th>
+                                        <th class="px-6 py-4">Risk Score</th>
+                                        <th class="px-6 py-4">Severity</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="flowTableBody" class="divide-y divide-slate-200 dark:divide-slate-900">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination and Counter -->
+                        <div
+                            class="p-6 border-t border-slate-200 dark:border-slate-900 flex items-center justify-between text-xs text-slate-500 dark:text-slate-405 font-medium">
+                            <div id="paginationCounter">Showing 0 of 0 entries</div>
+                            <div class="flex items-center space-x-2">
+                                <button id="prevPageBtn"
+                                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 dark:text-slate-300 font-bold transition duration-200">Previous</button>
+                                <button id="nextPageBtn"
+                                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 dark:text-slate-300 font-bold transition duration-200">Next</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- System Results Dashboard -->
+            <div id="systemDashboard" class="space-y-8 hidden">
+                <!-- System Placeholder -->
+                <div id="systemPlaceholder"
+                    class="glass-panel rounded-2xl p-12 text-center border shadow-sm dark:shadow-xl relative overflow-hidden transition-colors duration-200">
+                    <div
+                        class="absolute -right-16 -top-16 w-36 h-36 bg-sky-500/10 rounded-full blur-2xl pointer-events-none">
+                    </div>
+                    <div class="inline-flex p-4 bg-sky-100 dark:bg-sky-950/40 text-sky-500 rounded-full mb-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-md font-bold mb-1">No System Logs Loaded</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">Please drag & drop or upload
+                        a system log file (.log, .txt, syslog, auth.log) to view host event diagnostics.</p>
+                </div>
+
+                <!-- System Content -->
+                <div id="systemContent" class="space-y-8 hidden">
+                    <!-- System Overview Stats Panel -->
+                    <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <!-- Status Card -->
+                        <div
+                            class="glass-panel rounded-2xl p-5 border relative flex items-center justify-between overflow-hidden shadow-sm dark:shadow-lg transition-colors duration-200">
+                            <div class="space-y-1">
+                                <h4
+                                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Overall Status</h4>
+                                <p id="systemOverallSeverityText"
+                                    class="text-2xl font-black text-slate-900 dark:text-white">Low Threat</p>
+                            </div>
+                            <div id="systemStatusBadgeBg"
+                                class="p-3.5 rounded-xl text-white shadow-lg bg-emerald-500 shadow-emerald-500/20">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Total Logs Card -->
+                        <div
+                            class="glass-panel rounded-2xl p-5 border flex items-center justify-between shadow-sm dark:shadow-lg transition-colors duration-200">
+                            <div class="space-y-1">
+                                <h4
+                                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Total Log Entries</h4>
+                                <p id="statTotalSystemLogs" class="text-3xl font-black text-slate-900 dark:text-white">0
+                                </p>
+                            </div>
+                            <div
+                                class="p-3.5 bg-slate-200/50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-xl text-sky-500 dark:text-sky-400 shadow-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6h16M4 12h16M4 18h7"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Security Alerts Card -->
+                        <div
+                            class="glass-panel rounded-2xl p-5 border flex items-center justify-between shadow-sm dark:shadow-lg transition-colors duration-200">
+                            <div class="space-y-1">
+                                <h4
+                                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Security Alerts</h4>
+                                <p id="statSystemAlerts" class="text-3xl font-black text-rose-500">0</p>
+                            </div>
+                            <div
+                                class="p-3.5 bg-slate-200/50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-xl text-rose-500 shadow-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Average Risk Card -->
+                        <div
+                            class="glass-panel rounded-2xl p-5 border flex items-center justify-between shadow-sm dark:shadow-lg transition-colors duration-200">
+                            <div class="space-y-1">
+                                <h4
+                                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Risk Score (Avg)</h4>
+                                <p id="statSystemAvgRisk" class="text-3xl font-black text-amber-500">0%</p>
+                            </div>
+                            <div
+                                class="p-3.5 bg-slate-200/50 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 rounded-xl text-amber-500 shadow-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- System Visualizations Panel -->
+                    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Doughnut Chart -->
+                        <div
+                            class="glass-panel rounded-2xl p-6 border flex flex-col items-center justify-between shadow-sm dark:shadow-lg transition-colors duration-200 col-span-1">
+                            <div class="w-full text-left mb-4">
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Threat Categories</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Distribution of host event
+                                    classifications</p>
+                            </div>
+                            <div class="w-48 h-48 relative flex items-center justify-center">
+                                <canvas id="systemCategoryChart" class="max-w-full max-h-full"></canvas>
+                            </div>
+                            <div
+                                class="w-full grid grid-cols-2 gap-2 mt-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block"></span>
+                                    <span>System Info</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-amber-500 rounded-full inline-block"></span> <span>Brute
+                                        Force</span></div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-rose-500 rounded-full inline-block"></span>
+                                    <span>Privilege Esc.</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-red-600 rounded-full inline-block"></span> <span>Service
+                                        Crash</span></div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-purple-500 rounded-full inline-block"></span>
+                                    <span>Suspicious Act.</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5"><span
+                                        class="w-2.5 h-2.5 bg-sky-500 rounded-full inline-block"></span> <span>Auth
+                                        Event</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Bar Chart -->
+                        <div
+                            class="glass-panel rounded-2xl p-6 border shadow-sm dark:shadow-lg col-span-2 flex flex-col justify-between transition-colors duration-200">
+                            <div class="mb-4">
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Active System Services</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Log entry volume broken down by
+                                    service and maximum risk</p>
+                            </div>
+                            <div class="h-56 relative">
+                                <canvas id="systemServiceChart"></canvas>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- System Log Details Table -->
+                    <section
+                        class="glass-panel rounded-2xl border shadow-sm dark:shadow-xl overflow-hidden transition-colors duration-200">
+                        <div
+                            class="p-6 border-b border-slate-200 dark:border-slate-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">System Events</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Parsed host log entries matching
+                                    severity thresholds</p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <!-- Search -->
+                                <div class="relative">
+                                    <input type="text" id="systemTableSearch"
+                                        placeholder="Search by service, message..."
+                                        class="w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-1.5 text-xs text-slate-905 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 transition duration-200">
+                                </div>
+                                <!-- CSV Export -->
+                                <button id="systemExportCsvBtn"
+                                    class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-semibold text-xs py-1.5 px-4 rounded-lg flex items-center space-x-2 transition duration-200 shadow-lg shadow-sky-500/10">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    <span>Export Report</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-left text-xs text-slate-700 dark:text-slate-300">
+                                <thead
+                                    class="bg-slate-100 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-900 text-slate-605 dark:text-slate-400 font-bold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-4">Timestamp</th>
+                                        <th class="px-6 py-4">Hostname</th>
+                                        <th class="px-6 py-4">Service [PID]</th>
+                                        <th class="px-6 py-4">Event Type</th>
+                                        <th class="px-6 py-4">Log Message</th>
+                                        <th class="px-6 py-4">Risk Score</th>
+                                        <th class="px-6 py-4">Severity</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="systemTableBody" class="divide-y divide-slate-200 dark:divide-slate-900">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination and Counter -->
+                        <div
+                            class="p-6 border-t border-slate-200 dark:border-slate-900 flex items-center justify-between text-xs text-slate-500 dark:text-slate-405 font-medium">
+                            <div id="systemPaginationCounter">Showing 0 of 0 entries</div>
+                            <div class="flex items-center space-x-2">
+                                <button id="systemPrevPageBtn"
+                                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 dark:text-slate-300 font-bold transition duration-200">Previous</button>
+                                <button id="systemNextPageBtn"
+                                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 dark:text-slate-300 font-bold transition duration-200">Next</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Script Entry Point -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>

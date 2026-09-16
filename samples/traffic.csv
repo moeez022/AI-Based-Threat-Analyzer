@@ -1,0 +1,5 @@
+Source IP,Source Port,Destination IP,Destination Port,Protocol,Flow Duration,Total Fwd Packets,Total Backward Packets,Total Length of Fwd Packets,Total Length of Bwd Packets,Fwd Packet Length Max,Fwd Packet Length Min,Fwd Packet Length Mean,Bwd Packet Length Max,Bwd Packet Length Min,Bwd Packet Length Mean,Flow Bytes/s,Flow Packets/s,Fwd Header Length,Bwd Header Length,SYN Flag Count,RST Flag Count,PSH Flag Count,ACK Flag Count,URG Flag Count,ECE Flag Count,FIN Flag Count
+192.168.1.10,49231,10.0.0.5,80,6,1500000,5,6,320,1200,150,0,64,450,0,200,1013.33,7.33,100,120,1,0,2,6,0,0,1
+172.16.0.5,54221,192.168.10.1,80,6,12000,100,0,6400,0,64,64,64,0,0,0,533333.33,8333.33,2000,0,100,0,0,0,0,0,0
+192.168.1.25,38291,192.168.1.1,22,6,5000,8,2,320,80,40,40,40,40,40,40,80000.0,2000.0,160,40,2,6,0,1,0,0,0
+10.0.0.15,8888,192.168.1.50,443,6,95000,500,12,37000,888,74,74,74,74,74,74,398821.05,5389.47,10000,240,350,10,50,60,0,0,0
